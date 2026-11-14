@@ -1,15 +1,15 @@
-// ===========================
-// TYPING ANIMATION
-// ===========================
+// ========================================
+// 1. TYPING ANIMATION
+// ========================================
 
 const typingText = document.getElementById("typing");
 
 const roles = [
-    "Full Stack Developer",
     "Python Developer",
+    "Full Stack Developer",
     "Software Engineer",
-    "Problem Solver",
-    "AI Enthusiast"
+    "Backend Developer",
+    "Problem Solver"
 ];
 
 let roleIndex = 0;
@@ -18,17 +18,23 @@ let deleting = false;
 
 function typeEffect() {
 
+    if (!typingText) return;
+
     const currentRole = roles[roleIndex];
 
     if (!deleting) {
+
         typingText.textContent =
             currentRole.substring(0, charIndex + 1);
 
         charIndex++;
 
         if (charIndex === currentRole.length) {
+
             deleting = true;
+
             setTimeout(typeEffect, 1500);
+
             return;
         }
 
@@ -40,7 +46,9 @@ function typeEffect() {
         charIndex--;
 
         if (charIndex === 0) {
+
             deleting = false;
+
             roleIndex++;
 
             if (roleIndex >= roles.length) {
@@ -49,161 +57,245 @@ function typeEffect() {
         }
     }
 
-    setTimeout(typeEffect, deleting ? 60 : 100);
+    setTimeout(typeEffect, deleting ? 50 : 100);
 }
 
-typeEffect();
+if (typingText) {
+    typeEffect();
+}
 
 
-// ===========================
-// ACTIVE NAVIGATION
-// ===========================
+
+// ========================================
+// 2. MOBILE NAVIGATION MENU
+// ========================================
+
+const menuBtn = document.querySelector(".menu-btn");
+
+const navMenu = document.querySelector(".nav-links");
+
+if (menuBtn && navMenu) {
+
+    menuBtn.addEventListener("click", () => {
+
+        navMenu.classList.toggle("active");
+
+        const icon = menuBtn.querySelector("i");
+
+        if (icon) {
+
+            if (navMenu.classList.contains("active")) {
+
+                icon.classList.remove("fa-bars");
+                icon.classList.add("fa-xmark");
+
+            } else {
+
+                icon.classList.remove("fa-xmark");
+                icon.classList.add("fa-bars");
+
+            }
+        }
+
+    });
+
+
+    // Close menu after clicking a navigation link
+
+    navMenu.querySelectorAll("a").forEach(link => {
+
+        link.addEventListener("click", () => {
+
+            navMenu.classList.remove("active");
+
+            const icon = menuBtn.querySelector("i");
+
+            if (icon) {
+
+                icon.classList.remove("fa-xmark");
+                icon.classList.add("fa-bars");
+
+            }
+
+        });
+
+    });
+
+}
+
+
+
+// ========================================
+// 3. ACTIVE NAVIGATION HIGHLIGHT
+// ========================================
 
 const sections = document.querySelectorAll("section");
+
 const navLinks = document.querySelectorAll(".nav-links a");
 
-window.addEventListener("scroll", () => {
+function updateActiveNavigation() {
 
-    let current = "";
+    let currentSection = "";
 
     sections.forEach(section => {
 
         const sectionTop =
-            section.offsetTop - 150;
+            section.offsetTop - 180;
 
         const sectionHeight =
-            section.clientHeight;
+            section.offsetHeight;
 
         if (
-            pageYOffset >= sectionTop
-            &&
-            pageYOffset <
-            sectionTop + sectionHeight
+            window.scrollY >= sectionTop &&
+            window.scrollY < sectionTop + sectionHeight
         ) {
-            current = section.getAttribute("id");
+
+            currentSection = section.getAttribute("id");
+
         }
+
     });
+
 
     navLinks.forEach(link => {
 
         link.classList.remove("active");
 
         if (
-            link.getAttribute("href")
-            === "#" + current
+            link.getAttribute("href") === "#" + currentSection
         ) {
+
             link.classList.add("active");
+
         }
-    });
 
-});
-
-
-// ===========================
-// SCROLL REVEAL
-// ===========================
-
-const revealElements =
-document.querySelectorAll(
-".section, .project-card, .skill-card"
-);
-
-function revealOnScroll() {
-
-    revealElements.forEach(element => {
-
-        const windowHeight =
-        window.innerHeight;
-
-        const revealTop =
-        element.getBoundingClientRect().top;
-
-        if (revealTop < windowHeight - 100) {
-
-            element.style.opacity = "1";
-            element.style.transform =
-            "translateY(0)";
-        }
     });
 
 }
 
-revealElements.forEach(element => {
+window.addEventListener("scroll", updateActiveNavigation);
 
-    element.style.opacity = "0";
+updateActiveNavigation();
 
-    element.style.transform =
-    "translateY(40px)";
 
-    element.style.transition =
-    "all 0.8s ease";
-});
 
-window.addEventListener(
-"scroll",
-revealOnScroll
+// ========================================
+// 4. SCROLL REVEAL ANIMATION
+// ========================================
+
+const revealElements = document.querySelectorAll(
+    ".section, .project-card, .skill-card, .internship-card, .education-card, .achievement-card"
 );
 
-revealOnScroll();
+if ("IntersectionObserver" in window) {
 
+    const revealObserver = new IntersectionObserver(
+        (entries, observer) => {
 
-// ===========================
-// SMOOTH BUTTON EFFECT
-// ===========================
+            entries.forEach(entry => {
 
-document.querySelectorAll(".btn")
-.forEach(button => {
+                if (entry.isIntersecting) {
 
-    button.addEventListener(
-        "mouseenter",
-        () => {
+                    entry.target.classList.add("reveal-visible");
 
-            button.style.transform =
-            "translateY(-4px)";
+                    observer.unobserve(entry.target);
+
+                }
+
+            });
+
+        },
+        {
+            threshold: 0.12
         }
     );
 
-    button.addEventListener(
-        "mouseleave",
-        () => {
 
-            button.style.transform =
-            "translateY(0)";
-        }
-    );
+    revealElements.forEach(element => {
+
+        element.classList.add("reveal-element");
+
+        revealObserver.observe(element);
+
+    });
+
+} else {
+
+    revealElements.forEach(element => {
+
+        element.classList.add("reveal-visible");
+
+    });
+
+}
+
+
+
+// ========================================
+// 5. BUTTON HOVER EFFECT
+// ========================================
+
+const buttons = document.querySelectorAll(
+    ".btn, .project-buttons a"
+);
+
+buttons.forEach(button => {
+
+    button.addEventListener("mouseenter", () => {
+
+        button.style.transform = "translateY(-4px)";
+
+    });
+
+    button.addEventListener("mouseleave", () => {
+
+        button.style.transform = "translateY(0)";
+
+    });
 
 });
 
 
-// ===========================
-// MOBILE MENU
-// ===========================
 
-const menuBtn =
-document.querySelector(".menu-btn");
+// ========================================
+// 6. CLOSE MOBILE MENU WHEN CLICKING OUTSIDE
+// ========================================
 
-const navMenu =
-document.querySelector(".nav-links");
+document.addEventListener("click", (event) => {
 
-if(menuBtn){
+    if (
+        menuBtn &&
+        navMenu &&
+        !menuBtn.contains(event.target) &&
+        !navMenu.contains(event.target)
+    ) {
 
-menuBtn.addEventListener("click",()=>{
+        navMenu.classList.remove("active");
 
-    if(navMenu.style.display==="flex"){
+        const icon = menuBtn.querySelector("i");
 
-        navMenu.style.display="none";
+        if (icon) {
 
-    }else{
+            icon.classList.remove("fa-xmark");
+            icon.classList.add("fa-bars");
 
-        navMenu.style.display="flex";
-        navMenu.style.flexDirection="column";
-        navMenu.style.position="absolute";
-        navMenu.style.top="80px";
-        navMenu.style.right="20px";
-        navMenu.style.padding="20px";
-        navMenu.style.borderRadius="15px";
-        navMenu.style.background="#111827";
+        }
+
     }
 
 });
+
+
+
+// ========================================
+// 7. FOOTER CURRENT YEAR
+// ========================================
+
+const footerText = document.querySelector("footer p");
+
+if (footerText) {
+
+    footerText.textContent =
+        `© ${new Date().getFullYear()} Chiluka Minender | Built with HTML, CSS & JavaScript`;
+
 }
